@@ -9,6 +9,9 @@ var (
 	units = []string{
 		"ноль", "один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять",
 	}
+	unitsFemale = []string{
+		"ноль", "одна", "две",
+	}
 	teenagers = []string{
 		"десять", "одиннадцать", "двенадцать", "тринадцать", "четырнадцать", "пятнадцать", "шестнадцать",
 		"семнадцать", "восемнадцать", "девятнадцать",
@@ -42,7 +45,15 @@ func NumberToWords(n int) (string, error) {
 	for n > 0 {
 		if nMod := n % 1000; nMod != 0 {
 			j := 3
-			if nMod < 4 {
+			isFemale := false
+			switch {
+			case nMod == 1:
+				j = 1
+				isFemale = true
+			case nMod == 2:
+				j = 2
+				isFemale = true
+			case nMod < 4:
 				j = 2
 			}
 
@@ -58,7 +69,7 @@ func NumberToWords(n int) (string, error) {
 				return "", fmt.Errorf("undefined prefix")
 			}
 
-			parts = append([]string{convertHundreds(nMod) + prefix}, parts...)
+			parts = append([]string{convertHundreds(nMod, isFemale) + prefix}, parts...)
 		}
 		n /= 1000
 
@@ -70,10 +81,13 @@ func NumberToWords(n int) (string, error) {
 	return result, nil
 }
 
-func convertHundreds(n int) string {
+func convertHundreds(n int, isFemale bool) string {
 	if n == 0 {
 		return ""
 	} else if n < 10 {
+		if isFemale {
+			return unitsFemale[n]
+		}
 		return units[n]
 	} else if n < 20 {
 		return teenagers[n-10]
@@ -95,6 +109,6 @@ func convertHundreds(n int) string {
 			return hundreds[hundredsDigit]
 		}
 
-		return fmt.Sprintf("%s %s", hundreds[hundredsDigit], convertHundreds(n%100))
+		return fmt.Sprintf("%s %s", hundreds[hundredsDigit], convertHundreds(n%100, isFemale))
 	}
 }
